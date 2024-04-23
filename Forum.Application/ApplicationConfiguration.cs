@@ -12,6 +12,8 @@ namespace Forum.Application
             this IServiceCollection services)
         {
 
+            services.AddScoped<CommentService>();
+            services.AddScoped<TopicService>();
             services.AddScoped<UserService>();
             services.AddScoped<AuthenticationService>();
             services.AddSingleton<PasswordService>();

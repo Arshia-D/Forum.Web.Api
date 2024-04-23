@@ -48,6 +48,7 @@ namespace Forum.Infrastructure
                     var context = scope.ServiceProvider
                         .GetRequiredService<DatabaseContext>();
 
+
                     context.Database.Migrate();
                 }
             }

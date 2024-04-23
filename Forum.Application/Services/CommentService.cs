@@ -24,8 +24,7 @@ namespace Forum.Application.Services
             {
                 Text = commentDto.Text,
                 Status = commentDto.Status,
-                CreatorId = commentDto.CreatorId,
-                // Assume setting Topic directly from TopicId is handled internally
+                CreatorId = commentDto.CreatorId,              
                 Likes = commentDto.Likes
             };
 

@@ -9,7 +9,7 @@ services:
     ports:
       - 5000:80
     environment:
-      - DatabaseSettings__ConnectionString=Server=data;Port=5432;Database=forum;User Id=postgres;Password=postgres;
+      - DatabaseSettings__ConnectionString=Server=data;Port=5432;Database=forum1;User Id=postgres;Password=postgres;
       - DatabaseSettings__MigrationTable=changelog
       - DatabaseSettings__EnableMigrations=true
     networks:

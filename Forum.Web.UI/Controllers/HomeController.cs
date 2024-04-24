@@ -31,45 +31,43 @@ namespace Forum.Web.UI.Controllers
             return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        [HttpGet]
+        public ActionResult SignUp()
         {
-            if (!ModelState.IsValid)
-            {
-                return View(nameof(Index), model);
-            }
+            return View(new CreateUserViewModel());
+        }
 
-            try
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> SignUp(CreateUserViewModel model)
+        {
+            if (ModelState.IsValid)
             {
-                var user = await _authenticationClient
-                    .LoginAsync(new AuthenticateRequest
+                try
                 {
-                    Username = model.Username,
-                    Password = model.Password
-                });
+                    var result = await _userClient.CreateAsync(new CreateUserRequest
+                    {
+                        Email = model.Email,
+                        Username = model.Username,
+                        Password = model.Password,
+                    });
 
-                var identity = new ClaimsIdentity(new[]
+                    if (result.Id != null)
+                    {
+                        return RedirectToAction("Index"); // Redirect to home after successful signup
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Registration failed: Unable to create user.");
+                    }
+                }
+                catch (Exception ex)
                 {
-                    new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
-                    new Claim(ClaimTypes.Email, user.Email!),
-                    new Claim(ClaimTypes.Role, user.Role.ToString()!),
-                    new Claim(ClaimTypes.NameIdentifier, user.Username!),
-                    new Claim(ClaimTypes.Sid, user.Id.ToString()!),
-                }, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
+                    _logger.LogError(ex, "Registration error: " + ex.Message);
+                    ModelState.AddModelError("", "Registration failed: " + ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                ModelState.AddModelError("", "Invalid username or password");
-                
-                return View(nameof(Index), model);
-            }
-
-            return RedirectToAction(
-                nameof(UsersController.Index), 
-                "Users");
+            return View(model);
         }
 
         public IActionResult Privacy()

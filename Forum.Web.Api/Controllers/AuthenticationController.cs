@@ -10,11 +10,15 @@ namespace Forum.Web.Api.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly AuthenticationService _authenticationService;
+        private readonly UserService _userService;
+
 
         public AuthenticationController(
-            AuthenticationService authenticationService)
+            AuthenticationService authenticationService,
+            UserService userService)  // Constructor injection of UserService
         {
             _authenticationService = authenticationService;
+            _userService = userService;
         }
 
         [HttpPost]
@@ -32,5 +36,18 @@ namespace Forum.Web.Api.Controllers
 
             return Ok(result.User);
         }
+        [HttpPost("register")]
+        public async Task<IActionResult> RegisterAsync([FromBody] CreateUserDto model)
+        {
+            var (Id, Error) = await _userService.CreateUserAsync(model);
+
+            if (!string.IsNullOrEmpty(Error))
+            {
+                return BadRequest(Error);
+            }
+
+            return Ok(new { UserId = Id });
+        }
+
     }
 }

@@ -1,62 +1,82 @@
-﻿using Forum.Application.Dto;
-using Forum.Application.Services;
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-
-namespace Forum.Web.Api.Controllers
+﻿using Microsoft.AspNetCore.Mvc;
+namespace Forum.Web.UI.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CommentController : ControllerBase
+    
+    public class CommentController : Controller
     {
-        private readonly CommentService _commentService;
-
-        public CommentController(CommentService commentService)
+        // GET: Comment
+        public ActionResult Index(int topicId)
         {
-            _commentService = commentService;
+            // Retrieve and display comments by topicId
+            return View();
         }
 
+        // GET: Comment/Add
+        public ActionResult Add(int topicId)
+        {
+            ViewBag.TopicId = topicId;
+            return View();
+        }
+
+        // POST: Comment/Add
         [HttpPost]
-        public async Task<ActionResult<CommentDto>> AddNewCommentAsync([FromBody] CommentDto commentDto)
+        public ActionResult Add(int topicId, FormCollection collection)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                // Add comment adding logic here
+                return RedirectToAction("Index", new { topicId = topicId });
             }
-
-            var result = await _commentService.AddNewCommentAsync(commentDto);
-            return CreatedAtAction(nameof(GetCommentByIdAsync), new { commentId = result.Id }, result);
+            catch
+            {
+                ViewBag.TopicId = topicId;
+                return View();
+            }
         }
 
-        [HttpPost("reply/{topicId}")]
-        public async Task<ActionResult<CommentDto>> AddReplyAsync(long topicId, [FromBody] CommentDto replyDto)
+        // GET: Comment/Edit/5
+        public ActionResult Edit(int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var result = await _commentService.AddReplyAsync(topicId, replyDto);
-            return CreatedAtAction(nameof(GetCommentByIdAsync), new { commentId = result.Id }, result);
+            // Retrieve the comment by id to edit
+            return View();
         }
 
-        [HttpDelete("{commentId}")]
-        public async Task<IActionResult> DeleteCommentAsync(long commentId)
+        // POST: Comment/Edit/5
+        [HttpPost]
+        public ActionResult Edit(int id, FormCollection collection)
         {
-            await _commentService.DeleteCommentAsync(commentId);
-            return NoContent();
+            try
+            {
+                // Update comment logic here
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
         }
 
-        // Placeholder for GetCommentByIdAsync method
-        [HttpGet("{commentId}")]
-        public async Task<ActionResult<CommentDto>> GetCommentByIdAsync(long commentId)
+        // GET: Comment/Delete/5
+        public ActionResult Delete(int id)
         {
-            var commentDto = await _commentService.GetCommentByIdAsync(commentId);
-            if (commentDto == null)
+            // Retrieve the comment by id to delete
+            return View();
+        }
+
+        // POST: Comment/Delete/5
+        [HttpPost]
+        public ActionResult Delete(int id, FormCollection collection)
+        {
+            try
             {
-                return NotFound($"Comment with ID {commentId} not found.");
+                // Delete comment logic here
+                return RedirectToAction("Index");
             }
-            return Ok(commentDto);
+            catch
+            {
+                return View();
+            }
         }
     }
+
 }

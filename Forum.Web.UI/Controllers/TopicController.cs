@@ -1,57 +1,79 @@
-﻿using Forum.Application.Dto;
-using Forum.Application.Services;
-using Forum.Domain.Models;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Forum.Web.Api.Controllers
+namespace Forum.Web.UI.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class TopicController : ControllerBase
+    public class TopicController : Controller
     {
-        private readonly TopicService _topicService;
-
-        public TopicController(TopicService topicService)
+        // GET: Topic
+        public ActionResult Index()
         {
-            _topicService = topicService;
+            // Retrieve and display all topics
+            return View();
         }
 
-        [HttpGet("ByStatus/{status}")]
-        public async Task<ActionResult<IEnumerable<TopicDto>>> GetTopicsByStatus(TopicStatus status)
+        // GET: Topic/Create
+        public ActionResult Create()
         {
-            var topics = await _topicService.GetTopicsByStatusAsync(status);
-            if (topics == null)
+            return View();
+        }
+
+        // POST: Topic/Create
+        [HttpPost]
+        public ActionResult Create(FormCollection collection)
+        {
+            try
             {
-                return NotFound("Topics not found.");
+                // Add topic creation logic here
+                return RedirectToAction("Index");
             }
-            return Ok(topics);
-        }
-
-        [HttpGet("ByCreator/{creatorId}")]
-        public async Task<ActionResult<IEnumerable<TopicDto>>> GetTopicsByCreator(long creatorId)
-        {
-            var topics = await _topicService.GetTopicsByCreatorAsync(creatorId);
-            if (topics == null)
+            catch
             {
-                return NotFound("Topics not found.");
+                return View();
             }
-            return Ok(topics);
         }
 
-        [HttpPut("{topicId}/UpdateStatus/{status}")]
-        public async Task<IActionResult> UpdateTopicStatus(long topicId, TopicStatus status)
+        // GET: Topic/Edit/5
+        public ActionResult Edit(int id)
         {
-            await _topicService.UpdateTopicStatusAsync(topicId, status);
-            return NoContent(); // No content to return after updating
+            // Retrieve the topic by id to edit
+            return View();
         }
 
-        [HttpPost("{topicId}/IncrementLikes")]
-        public async Task<IActionResult> IncrementLikes(long topicId)
+        // POST: Topic/Edit/5
+        [HttpPost]
+        public ActionResult Edit(int id, FormCollection collection)
         {
-            await _topicService.IncrementLikesAsync(topicId);
-            return NoContent(); // No content to return after incrementing
+            try
+            {
+                // Update topic logic here
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
+        // GET: Topic/Delete/5
+        public ActionResult Delete(int id)
+        {
+            // Retrieve the topic by id to delete
+            return View();
+        }
+
+        // POST: Topic/Delete/5
+        [HttpPost]
+        public ActionResult Delete(int id, FormCollection collection)
+        {
+            try
+            {
+                // Delete topic logic here
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
         }
     }
 }

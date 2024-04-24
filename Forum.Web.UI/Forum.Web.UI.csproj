@@ -16,9 +16,4 @@
     <PackageReference Include="Refit.Newtonsoft.Json" Version="7.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Views\Comments\" />
-    <Folder Include="Views\Topic\" />
-  </ItemGroup>
-
 </Project>

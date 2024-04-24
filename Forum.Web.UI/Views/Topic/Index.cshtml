@@ -1,0 +1,10 @@
+﻿@model IEnumerable<Forum.Web.UI.Models.TopicViewModel>
+
+<h1>Topics</h1>
+<ul>
+    @foreach (var topic in Model)
+    {
+        <li>@Html.ActionLink(topic.Title, "Detail", "Topic", new { id = topic.Id }, null)</li>
+    }
+</ul>
+@Html.ActionLink("Create New Topic", "Create", "Topic")

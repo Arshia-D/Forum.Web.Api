@@ -1,0 +1,12 @@
+﻿@model Forum.Web.UI.Models.CommentViewModel
+
+<h1>@(Model.Id == 0 ? "Add" : "Edit") Comment</h1>
+
+@using (Html.BeginForm())
+{
+    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.TopicId)
+    @Html.LabelFor(model => model.Content)
+    @Html.TextAreaFor(model => model.Content)
+    <input type="submit" value="Submit" />
+}

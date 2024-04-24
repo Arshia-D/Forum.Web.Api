@@ -1,0 +1,10 @@
+﻿@model IEnumerable<Forum.Web.UI.Models.CommentViewModel>
+
+<h1>Comments</h1>
+<ul>
+    @foreach (var comment in Model)
+    {
+        <li>@comment.Content</li>
+    }
+</ul>
+@Html.ActionLink("Add Comment", "Add", "Comment", new { topicId = ViewBag.TopicId }, null)

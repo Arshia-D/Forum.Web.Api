@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Refit;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -30,6 +31,46 @@ namespace Forum.Web.UI.Controllers
         {
             return View();
         }
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(nameof(Index), model);
+            }
+
+            try
+            {
+                var user = await _authenticationClient
+                    .LoginAsync(new AuthenticateRequest
+                    {
+                        Username = model.Username,
+                        Password = model.Password
+                    });
+
+                var identity = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+                    new Claim(ClaimTypes.Email, user.Email!),
+                    new Claim(ClaimTypes.Role, user.Role.ToString()!),
+                    new Claim(ClaimTypes.NameIdentifier, user.Username!),
+                    new Claim(ClaimTypes.Sid, user.Id.ToString()!),
+                }, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                ModelState.AddModelError("", "Invalid username or password");
+
+                return View(nameof(Index), model);
+            }
+
+            return RedirectToAction(
+                nameof(UsersController.Index),
+                "Users");
+        }
 
         [HttpGet]
         public ActionResult SignUp()
@@ -45,12 +86,18 @@ namespace Forum.Web.UI.Controllers
             {
                 try
                 {
-                    var result = await _userClient.CreateAsync(new CreateUserRequest
+                    // Mapping the CreateUserViewModel to CreateUserRequest as seen in UsersController
+                    var createUserRequest = new CreateUserRequest
                     {
                         Email = model.Email,
                         Username = model.Username,
                         Password = model.Password,
-                    });
+                        FirstName = model.FirstName, 
+                        LastName = model.LastName,
+                        ConfirmPassword = model.ConfirmPassword
+                    };
+
+                    var result = await _userClient.CreateAsync(createUserRequest);
 
                     if (result.Id != null)
                     {
@@ -61,10 +108,15 @@ namespace Forum.Web.UI.Controllers
                         ModelState.AddModelError("", "Registration failed: Unable to create user.");
                     }
                 }
+                catch (ApiException apiEx) when (apiEx.StatusCode == System.Net.HttpStatusCode.Conflict)
+                {
+                    // Handle the case where the username or email is already taken
+                    ModelState.AddModelError("", "Registration failed: User with the same email or username already exists.");
+                }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Registration error: " + ex.Message);
-                    ModelState.AddModelError("", "Registration failed: " + ex.Message);
+                    ModelState.AddModelError("", "Registration failed: An unexpected error occurred.");
                 }
             }
             return View(model);

@@ -1,6 +1,7 @@
 ﻿using Forum.Application.Dto;
 using Forum.Application.Services;
 using Forum.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -116,6 +117,6 @@ namespace Forum.Web.Api.Controllers
             }
 
             return Ok(user.User);
-        }
+        }    
     }
 }

@@ -1,0 +1,27 @@
+﻿@model IEnumerable<Forum.Application.Dto.CommentDto>
+
+@{
+    ViewBag.Title = "Comments List";
+}
+
+<h2>Comments</h2>
+
+@foreach (var comment in Model)
+{
+    <div>
+        <p>@comment.Text</p>
+        <!-- Link to delete comment, actual implementation depends on JavaScript or form submission -->
+        <a href="/api/Comment/@comment.Id">Delete</a>
+        <!-- Form to reply to a comment -->
+        <form action="/api/Comment/reply/@comment.TopicId" method="post">
+            <textarea name="ReplyText"></textarea>
+            <button type="submit">Reply</button>
+        </form>
+    </div>
+}
+
+<!-- Form to add a new comment -->
+<form action="/api/Comment" method="post">
+    <textarea name="CommentText"></textarea>
+    <button type="submit">Add Comment</button>
+</form>
